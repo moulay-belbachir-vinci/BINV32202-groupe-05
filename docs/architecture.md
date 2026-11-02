@@ -123,9 +123,9 @@ nouvelles.
 
 | Couche | Fichier |
 |---|---|
-| Route | `backend/src/controllers/offers.controller.ts` (`GET /offers`, `authorize(canListOffers)`) |
-| Service | `backend/src/services/offers.service.ts` (visibilité selon le profil) |
-| Repository | `backend/src/repositories/offers.repository.ts` (jointures entreprise, année, période) |
+| Route | `backend/src/controllers/offers.controller.ts` (`GET /offers?period=P1`, ou sans paramètre pour « Toutes les périodes ») |
+| Service | `backend/src/services/offers.service.ts` (visibilité selon le profil et filtre facultatif de période) |
+| Repository | `backend/src/repositories/offers.repository.ts` (jointures entreprise, année, période ; absence de filtre = toutes les périodes) |
 | Modèles et mapper | `backend/src/models/offer.ts`, `backend/src/mappers/offer.mapper.ts` |
 | Tests API | `backend/tests/offers.test.ts` |
 | Service frontend | `frontend/src/services/offers.service.ts` |

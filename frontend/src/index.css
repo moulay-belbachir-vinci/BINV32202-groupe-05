@@ -80,7 +80,7 @@ body {
   background-color: rgb(255 255 255 / 15%);
 }
 
-/* Recherche */
+/* Recherche et filtre de période, y compris « Toutes les périodes » */
 
 .search-field {
   display: flex;
@@ -92,6 +92,23 @@ body {
 }
 
 .search-field input {
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  font-weight: 400;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.period-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 24rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.period-filter select {
   padding: 0.5rem 0.75rem;
   font: inherit;
   font-weight: 400;
