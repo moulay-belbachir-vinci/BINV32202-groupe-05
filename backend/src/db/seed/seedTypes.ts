@@ -84,7 +84,7 @@ export interface ApplicationRow {
   offer_id: number;
   student_id: number;
   message: string | null;
-  status: "IN_PROGRESS" | "SELECTED" | "REJECTED" | "WITHDRAWN";
+  status: "SUBMITTED" | "IN_PROGRESS" | "SELECTED" | "REJECTED" | "WITHDRAWN";
   applied_at: string;
 }
 

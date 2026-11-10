@@ -50,6 +50,47 @@ describe("OffersPage", () => {
     expect(screen.getByText("Toutes les offres, tous statuts confondus.")).toBeInTheDocument();
   });
 
+  it("permet à un étudiant d'envoyer sa candidature avec un message facultatif", async () => {
+    const application = {
+      id: 8,
+      offerId: 2,
+      studentId: studentUser.id,
+      message: "Ce sujet m'intéresse.",
+      status: "SUBMITTED",
+      appliedAt: "2026-11-10 10:00:00",
+    };
+    const fetchMock = stubFetch({
+      "/api/offers": () => Response.json([offers[0]]),
+      "/api/applications": () => Response.json(application, { status: 201 }),
+    });
+
+    render(<OffersPage user={studentUser} token="jeton" onUnauthorized={vi.fn()} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Candidater" }));
+    fireEvent.change(screen.getByLabelText("Message (facultatif)"), {
+      target: { value: "  Ce sujet m'intéresse.  " },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Envoyer ma candidature" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Candidature envoyée");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/applications",
+      expect.objectContaining({
+        method: "POST",
+        headers: { Authorization: "jeton", "Content-Type": "application/json" },
+        body: JSON.stringify({ offerId: 2, message: "Ce sujet m'intéresse." }),
+      }),
+    );
+  });
+
+  it("ne propose pas l'action de candidature aux autres profils", async () => {
+    stubFetch({ "/api/offers": () => Response.json(offers) });
+
+    render(<OffersPage user={contactUser} token="jeton" onUnauthorized={vi.fn()} />);
+
+    await screen.findByText("Refonte du portail client");
+    expect(screen.queryByRole("button", { name: "Candidater" })).not.toBeInTheDocument();
+  });
+
   it("transmet la période sélectionnée à l'API", async () => {
     const fetchMock = stubFetch({ "/api/offers": () => Response.json(offers) });
 

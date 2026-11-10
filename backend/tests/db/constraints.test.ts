@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../../src/db/database.ts";
 import {
   ACADEMIC_YEAR,
+  APPLICATION,
   COMPANY,
   CONTACT,
   OFFER,
@@ -169,6 +170,39 @@ const insertInternship = (overrides: Record<string, unknown> = {}) =>
     });
 
 describe("candidatures et stages", () => {
+  it("crée les nouvelles candidatures en attente de prise en charge", () => {
+    db.prepare("INSERT INTO applications (offer_id, student_id) VALUES (?, ?)").run(
+      OFFER.INTERNAL_CHATBOT,
+      STUDENT.AMINATA_DIALLO,
+    );
+    const row = db
+      .prepare("SELECT status FROM applications WHERE offer_id = ? AND student_id = ?")
+      .get(OFFER.INTERNAL_CHATBOT, STUDENT.AMINATA_DIALLO) as { status: string };
+
+    expect(row.status).toBe("SUBMITTED");
+  });
+
+  it("refuse une deuxième candidature du même étudiant à la même offre", () => {
+    const insertApplication = () =>
+      db
+        .prepare("INSERT INTO applications (offer_id, student_id) VALUES (?, ?)")
+        .run(OFFER.FLEET_APP, STUDENT.LUCAS_DUPONT);
+
+    expect(insertApplication).toThrow(/UNIQUE/);
+  });
+
+  it("autorise une nouvelle candidature après le retrait de la précédente", () => {
+    db.prepare("UPDATE applications SET status = 'WITHDRAWN' WHERE id = ?").run(
+      APPLICATION.LUCAS_FLEET_APP,
+    );
+
+    expect(() =>
+      db
+        .prepare("INSERT INTO applications (offer_id, student_id) VALUES (?, ?)")
+        .run(OFFER.FLEET_APP, STUDENT.LUCAS_DUPONT),
+    ).not.toThrow();
+  });
+
   it("accepte un stage valide, avec ou sans promoteur", () => {
     expect(() => insertInternship()).not.toThrow();
     expect(() => insertInternship({ promoter_contact_id: null })).not.toThrow();
