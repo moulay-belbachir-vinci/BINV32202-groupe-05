@@ -29,9 +29,11 @@ Toute erreur a la même forme :
 |---|---|---|
 | 400 | `INVALID_QUERY` | Paramètre de requête invalide |
 | 400 | `INVALID_BODY` | Corps de requête invalide |
+| 400 | `INVALID_PARAM` | Paramètre de chemin invalide |
 | 401 | `UNAUTHENTICATED` | Session absente, expirée ou invalide ; compte non autorisé à se connecter |
 | 403 | `FORBIDDEN` | Utilisateur connecté, mais sans droit sur la ressource |
 | 404 | `NOT_FOUND` | Route inconnue |
+| 409 | `APPLICATION_EXISTS` | L'étudiant a déjà une candidature active à cette offre |
 | 500 | `INTERNAL_ERROR` | Erreur inattendue du serveur |
 
 ## GET /health
@@ -175,3 +177,97 @@ récente à la plus ancienne, puis de la plus récente à la plus ancienne.
   ne doit pas être envoyé comme valeur API : il faut omettre le paramètre.
 - `401` `UNAUTHENTICATED` : session absente ou invalide.
 - `403` `FORBIDDEN` : contact seulement promoteur ou signataire.
+
+## GET /applications
+
+Retourne uniquement les candidatures de l'étudiant connecté, de la plus récente à la plus
+ancienne. Chaque entrée contient l'offre, l'entreprise, la période et le statut actuel.
+
+### Requête
+
+- Header `Authorization` obligatoire
+- Réservé aux étudiants
+
+### Réponses
+
+- `200` : tableau de candidatures ; un étudiant sans candidature reçoit `[]`
+
+```json
+[
+  {
+    "id": 3,
+    "offerId": 6,
+    "studentId": 3,
+    "offerTitle": "Migration d'une application vers le cloud",
+    "companyShortName": "Datavia",
+    "academicYear": "2026-2027",
+    "period": "P2",
+    "message": "Le sujet m'intéresse.",
+    "status": "SELECTED",
+    "appliedAt": "2026-09-22 12:00:00"
+  }
+]
+```
+
+`status` vaut `SUBMITTED`, `IN_PROGRESS`, `SELECTED`, `REJECTED` ou `WITHDRAWN`.
+`SUBMITTED` (en attente de prise en charge) et `IN_PROGRESS` (traitement commencé)
+s'affichent tous deux « En cours ».
+
+- `401` `UNAUTHENTICATED` : session absente ou invalide
+- `403` `FORBIDDEN` : l'utilisateur connecté n'est pas un étudiant
+
+## POST /applications
+
+Crée une candidature pour l'étudiant connecté. Seules les offres publiées sont
+disponibles ; une seule candidature active est autorisée par paire étudiant/offre. Une
+nouvelle candidature est possible après le retrait de la précédente.
+
+### Requête
+
+- Header `Authorization` obligatoire
+- Réservé aux étudiants
+- Body JSON : `{ "offerId": 7, "message": "Message facultatif" }`
+- `message` peut être omis ou vide ; les espaces autour du message sont supprimés.
+
+### Réponses
+
+- `201` : candidature créée (`status` vaut initialement `SUBMITTED`, en attente de prise en charge)
+
+```json
+{
+  "id": 8,
+  "offerId": 7,
+  "studentId": 1,
+  "message": "Message facultatif",
+  "status": "SUBMITTED",
+  "appliedAt": "2026-11-10 10:00:00"
+}
+```
+
+- `400` `INVALID_BODY` : identifiant d'offre invalide ou message non textuel
+- `401` `UNAUTHENTICATED` : session absente ou invalide
+- `403` `FORBIDDEN` : l'utilisateur connecté n'est pas un étudiant
+- `404` `OFFER_NOT_AVAILABLE` : offre inexistante ou non publiée
+- `409` `APPLICATION_EXISTS` : candidature déjà créée pour cette offre
+
+## DELETE /applications/:applicationId
+
+Retire une candidature appartenant à l'étudiant connecté. Seule une candidature encore
+`SUBMITTED` (pas encore prise en charge) peut être retirée. Dès que son traitement commence
+(`IN_PROGRESS`), le retrait est interdit ; une candidature retenue, non retenue ou déjà
+retirée ne peut pas non plus être modifiée.
+
+### Requête
+
+- Header `Authorization` obligatoire
+- Réservé aux étudiants
+- `applicationId` : identifiant entier positif de la candidature
+
+### Réponses
+
+- `204` : candidature retirée ; son statut devient `WITHDRAWN`
+- `400` `INVALID_PARAM` : identifiant de candidature invalide
+- `401` `UNAUTHENTICATED` : session absente ou invalide
+- `403` `FORBIDDEN` : l'utilisateur connecté n'est pas un étudiant
+- `404` `APPLICATION_NOT_FOUND` : candidature inexistante ou appartenant à un autre étudiant
+- `409` `APPLICATION_NOT_WITHDRAWABLE` : traitement commencé, candidature déjà traitée ou déjà retirée
