@@ -35,4 +35,4 @@ L’essai d’un événement de suppression simulé n’a pas pu être envoyé d
 
 ## Conversations Copilot
 
-Les transcriptions Markdown disponibles sont [`conversation-1.md`](semaine-4/conversation-1.md) (implémentation) et [`conversation-2.md`](semaine-4/conversation-2.md) (audit, hook et remise). Elles sont reconstituées depuis l’historique Copilot disponible; l’outil d’historique a tronqué une partie de la consigne initiale de la première session, ce qui est signalé dans le fichier.
+Les transcriptions Markdown disponibles sont [`conversation-1.md`](conversation-1.md) (implémentation) et [`conversation-2.md`](conversation-2.md) (audit, hook et remise). Elles sont reconstituées depuis l’historique Copilot disponible; l’outil d’historique a tronqué une partie de la consigne initiale de la première session, ce qui est signalé dans le fichier.
