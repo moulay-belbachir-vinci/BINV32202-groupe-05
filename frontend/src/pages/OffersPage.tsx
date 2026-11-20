@@ -2,6 +2,7 @@ import EmptyState from "../components/EmptyState.tsx";
 import ErrorState from "../components/ErrorState.tsx";
 import LoadingState from "../components/LoadingState.tsx";
 import OfferTable from "../components/OfferTable.tsx";
+import SearchField from "../components/SearchField.tsx";
 import { useState } from "react";
 import { ALL_PERIODS, PERIOD_CODES, type PeriodFilter } from "../models/offer.ts";
 import { PERIOD_LABELS } from "../utils/labels.ts";
@@ -23,12 +24,23 @@ const DESCRIPTIONS = {
 const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
   // « Toutes les périodes » est le choix initial et ne restreint pas la liste.
   const [period, setPeriod] = useState<PeriodFilter>(ALL_PERIODS);
-  const { offers, isLoading, error } = useOffers(token, onUnauthorized, period);
+  const [search, setSearch] = useState("");
+  const { offers, isLoading, error } = useOffers(token, onUnauthorized, period, search);
 
   const renderContent = () => {
     if (error) return <ErrorState message={error} />;
     if (isLoading) return <LoadingState />;
-    if (offers.length === 0) return <EmptyState message="Aucune offre à afficher." />;
+    if (offers.length === 0) {
+      return (
+        <EmptyState
+          message={
+            search.trim() === ""
+              ? "Aucune offre à afficher."
+              : "Aucune offre ne correspond à votre recherche."
+          }
+        />
+      );
+    }
     return (
       <>
         <p className="result-count">
@@ -48,6 +60,7 @@ const OffersPage = ({ user, token, onUnauthorized }: OffersPageProps) => {
     <section>
       <h1>Offres de stage</h1>
       <p>{DESCRIPTIONS[user.kind]}</p>
+      <SearchField label="Mot-clé du titre" value={search} onChange={setSearch} />
       <label className="period-filter">
         <span>Période</span>
         <select

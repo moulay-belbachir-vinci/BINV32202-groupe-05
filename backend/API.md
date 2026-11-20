@@ -76,6 +76,12 @@ Retourne l'utilisateur connecté.
 ### Requête
 
 - Header `Authorization` obligatoire
+- Paramètre facultatif `q` : recherche une expression contenue dans le titre, sans tenir
+  compte de la casse. Les espaces au début et à la fin sont ignorés ; une valeur vide est
+  ignorée. Plusieurs mots sont recherchés comme une expression complète. La recherche peut
+  être combinée avec `period`.
+- Paramètre facultatif `period` : `P1`, `P2` ou `OTHER`. Sans ce paramètre, toutes les
+  périodes normalement visibles sont incluses.
 - Paramètre facultatif `period` : `P1`, `P2` ou `OTHER`. Sans ce paramètre, toutes les
   offres normalement visibles sont retournées.
 
@@ -173,8 +179,10 @@ récente à la plus ancienne, puis de la plus récente à la plus ancienne.
 `period` vaut `P1`, `P2` ou `OTHER`. `status` vaut `SUBMITTED` (soumise), `PENDING`
 (en attente), `PUBLISHED` (publiée), `ASSIGNED` (attribuée) ou `ARCHIVED` (archivée).
 
-- `400` `INVALID_QUERY` : `period` n'est pas `P1`, `P2` ou `OTHER`. « Toutes les périodes »
-  ne doit pas être envoyé comme valeur API : il faut omettre le paramètre.
+- `200` : une recherche sans correspondance retourne `[]`.
+- `400` `INVALID_QUERY` : `period` n'est pas `P1`, `P2` ou `OTHER`, ou `q` apparaît plusieurs
+  fois. « Toutes les périodes » ne doit pas être envoyé comme valeur API : il faut omettre le
+  paramètre.
 - `401` `UNAUTHENTICATED` : session absente ou invalide.
 - `403` `FORBIDDEN` : contact seulement promoteur ou signataire.
 

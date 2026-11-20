@@ -28,7 +28,12 @@ export const createOffersRouter = (offersService: OffersService) => {
 
   router.get("/", authorize(canListOffers), (req, res) => {
     const period = parsePeriod(req.query.period);
-    res.json(offersService.listOffers(getCurrentUser(req), period).map(toOfferDto));
+    const query = req.query.q;
+    if (query !== undefined && typeof query !== "string") {
+      throw new HttpError(400, "INVALID_QUERY", "Le paramètre q doit apparaître une seule fois");
+    }
+    const search = query?.trim() || undefined;
+    res.json(offersService.listOffers(getCurrentUser(req), period, search).map(toOfferDto));
   });
 
   return router;

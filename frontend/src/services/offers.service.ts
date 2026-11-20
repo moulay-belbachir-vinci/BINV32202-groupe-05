@@ -5,10 +5,13 @@ import { isOfferList } from "../utils/guards.ts";
 export const getOffers = async (
   token: string,
   period: PeriodFilter = "ALL",
+  search = "",
   signal?: AbortSignal,
 ): Promise<Offer[]> => {
-  // « Toutes les périodes » conserve le comportement sans paramètre period.
-  const query = period === "ALL" ? "" : `?period=${encodeURIComponent(period)}`;
+  const params = new URLSearchParams();
+  if (period !== "ALL") params.set("period", period);
+  if (search.trim() !== "") params.set("q", search.trim());
+  const query = params.size > 0 ? `?${params.toString()}` : "";
   const response = await fetch(`${API_URL}/offers${query}`, {
     headers: { Authorization: token },
     signal,
