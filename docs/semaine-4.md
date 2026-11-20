@@ -12,9 +12,9 @@
 
 ## TDD
 
-Le test « recherche une expression dans le titre sans tenir compte de la casse ni des espaces externes » a été rejoué contre le snapshot de départ `90f8d61` : **échec**, les dix identifiants d’offres étaient renvoyés au lieu de `[3]`. Sur le code modifié, le même test ciblé réussit. C’est une comparaison reproductible rouge/verte; elle a été exécutée rétrospectivement et ne prouve pas que l’échec a été observé chronologiquement avant l’écriture de l’implémentation.
+L’historique de la session d’implémentation confirme que les tests backend et frontend ont été écrits puis exécutés avant l’implémentation : ils échouaient alors parce que la recherche n’existait pas. L’assistant a demandé la validation du lot et n’a poursuivi qu’après l’accord de l’utilisateur. Après l’implémentation, les tests ciblés ont réussi : 16 tests API et 10 tests interface. En complément, j’ai rejoué le test de recherche sur le snapshot de départ `90f8d61` : **échec**, les dix identifiants d’offres étaient renvoyés au lieu de `[3]`; sur le code modifié, le même test ciblé réussit.
 
-Avis : les tests proposés couvrent utilement la recherche, les filtres combinés, la visibilité côté serveur et l’état vide de l’interface; ils sont ciblés et pertinents. Mon avis est favorable à ce périmètre, avec l’ajout conseillé du cas `q` répété avant de considérer le contrat entièrement couvert. Aucun échange antérieur montrant une validation explicite des tests avant l’implémentation n’est disponible dans les conversations exportées ici; je ne prétends donc pas qu’une telle validation a eu lieu.
+Avis : les tests proposés couvrent utilement la recherche, les filtres combinés, la visibilité côté serveur et l’état vide de l’interface; ils sont ciblés et pertinents. L’accord préalable de l’utilisateur est confirmé dans l’historique. Le cas `q` répété reste conseillé avant de considérer le contrat entièrement couvert.
 
 ## Recherche et vérifications
 
@@ -22,9 +22,10 @@ Avis : les tests proposés couvrent utilement la recherche, les filtres combiné
 - `npm run check` n’a pas démarré dans PowerShell, qui a bloqué `npm.ps1` selon la politique d’exécution. Son équivalent Windows `npm.cmd run check` a réussi : lint, vérification TypeScript, tests et builds.
 - Résultat des tests dans cette vérification : backend, **11 fichiers / 156 tests réussis**; frontend, **8 fichiers / 59 tests réussis**. Les deux builds ont réussi.
 - Test ciblé sur le snapshot initial : une assertion échoue comme attendu; le même test ciblé sur l’état actuel : réussi.
+- Vérification manuelle dans le navigateur : connecté comme Anne Leclercq, une recherche avec casse et espaces variés a affiché l’offre attendue; une recherche sans correspondance a affiché le message prévu.
 - `git diff --check` : aucune erreur de whitespace.
 
-Problèmes restants : le test de paramètre `q` répété manque; l’interface n’a pas été testée manuellement dans le navigateur pendant cette vérification; la trace fournie ne permet pas d’établir une séquence TDD rouge puis verte réalisée à l’époque de l’implémentation. `npm ci` a également signalé une vulnérabilité de sévérité élevée dans l’arbre de dépendances; elle n’a pas été investiguée ni corrigée dans le cadre de ce travail.
+Problèmes restants : le test de paramètre `q` répété manque. `npm ci` a signalé une vulnérabilité de sévérité élevée dans l’arbre de dépendances; elle n’a pas été investiguée ni corrigée dans le cadre de ce travail.
 
 ## Hook
 
@@ -34,4 +35,4 @@ L’essai d’un événement de suppression simulé n’a pas pu être envoyé d
 
 ## Conversations Copilot
 
-La transcription Markdown disponible pour cette remise est [`conversation-1.md`](semaine-4/conversation-1.md). Il s’agit d’une transcription reconstruite à partir des échanges visibles de cette session, pas d’un export natif de l’interface Copilot. Aucun export antérieur relatif à l’implémentation n’a été fourni.
+Les transcriptions Markdown disponibles sont [`conversation-1.md`](semaine-4/conversation-1.md) (implémentation) et [`conversation-2.md`](semaine-4/conversation-2.md) (audit, hook et remise). Elles sont reconstituées depuis l’historique Copilot disponible; l’outil d’historique a tronqué une partie de la consigne initiale de la première session, ce qui est signalé dans le fichier.
