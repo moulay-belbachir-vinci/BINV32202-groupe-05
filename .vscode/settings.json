@@ -51,7 +51,7 @@
 
   // La sandbox accorde automatiquement la lecture et l'écriture dans le
   // répertoire de travail. Aucun chemin extérieur supplémentaire n'est ajouté.
-  "chat.agent.sandbox.enabled": "on",
+  "chat.agent.sandbox.enabled": "off",
   "chat.agent.sandbox.fileSystem.userConfiguredPaths": {
     "readwritePaths": [],
     "readonlyPaths": [],
