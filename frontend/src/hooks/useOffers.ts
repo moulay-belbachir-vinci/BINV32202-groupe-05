@@ -3,6 +3,8 @@ import type { Offer, PeriodFilter } from "../models/offer.ts";
 import { getOffers } from "../services/offers.service.ts";
 import { isUnauthorized } from "../utils/api.ts";
 
+const SEARCH_DELAY_MS = 300;
+
 /**
  * Offres visibles par l'utilisateur, choisies par le backend selon son profil.
  * La valeur « ALL » demande toutes les périodes et omet le paramètre period.
@@ -12,6 +14,7 @@ export const useOffers = (
   token: string,
   onUnauthorized: () => void,
   period: PeriodFilter = "ALL",
+  search = "",
 ) => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,24 +23,33 @@ export const useOffers = (
   useEffect(() => {
     const controller = new AbortController();
 
-    getOffers(token, period, controller.signal)
-      .then((data) => {
-        if (!controller.signal.aborted) setOffers(data);
-      })
-      .catch((reason: unknown) => {
-        if (controller.signal.aborted) return;
-        if (isUnauthorized(reason)) {
-          onUnauthorized();
-        } else {
-          setError(reason instanceof Error ? reason.message : "Erreur inconnue");
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setIsLoading(false);
-      });
+    const load = () => {
+      setIsLoading(true);
+      setError(null);
+      getOffers(token, period, search, controller.signal)
+        .then((data) => {
+          if (!controller.signal.aborted) setOffers(data);
+        })
+        .catch((reason: unknown) => {
+          if (controller.signal.aborted) return;
+          if (isUnauthorized(reason)) {
+            onUnauthorized();
+          } else {
+            setError(reason instanceof Error ? reason.message : "Erreur inconnue");
+          }
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setIsLoading(false);
+        });
+    };
 
-    return () => controller.abort();
-  }, [token, onUnauthorized, period]);
+    const timeoutId = window.setTimeout(load, search.trim() === "" ? 0 : SEARCH_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [token, onUnauthorized, period, search]);
 
   return { offers, isLoading, error };
 };

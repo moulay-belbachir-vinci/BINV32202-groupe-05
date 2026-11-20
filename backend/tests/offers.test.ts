@@ -63,6 +63,51 @@ describe("GET /offers : visibilité selon le profil", () => {
     expect(response.body.every((o: { period: string }) => o.period === "P2")).toBe(true);
   });
 
+  it("recherche une expression dans le titre sans tenir compte de la casse ni des espaces externes", async () => {
+    const response = await listOffersAs("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ).query({
+      q: "  aPi ReST de facturation  ",
+    });
+
+    expect(response.status).toBe(200);
+    expect(offerIds(response.body)).toEqual([OFFER.BILLING_API]);
+  });
+
+  it("recherche l'expression complète plutôt que des mots séparés", async () => {
+    const response = await listOffersAs("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ).query({
+      q: "API facturation",
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  it("ignore un mot-clé vide et conserve les offres publiées visibles par un étudiant", async () => {
+    const response = await listOffersAs("STUDENT", STUDENT.LUCAS_DUPONT).query({ q: "  " });
+
+    expect(response.status).toBe(200);
+    expect(offerIds(response.body)).toEqual([
+      OFFER.INTERNAL_CHATBOT,
+      OFFER.DATA_QUALITY,
+      OFFER.FLEET_APP,
+      OFFER.BILLING_API,
+    ]);
+    expect(response.body.every((offer: { status: string }) => offer.status === "PUBLISHED")).toBe(
+      true,
+    );
+  });
+
+  it("combine la recherche et la période sans exposer les offres non publiées à un étudiant", async () => {
+    const matching = await listOffersAs("STUDENT", STUDENT.LUCAS_DUPONT)
+      .query({ q: "API", period: "P2" });
+    const unpublished = await listOffersAs("STUDENT", STUDENT.LUCAS_DUPONT)
+      .query({ q: "Module de rapports PDF" });
+
+    expect(matching.status).toBe(200);
+    expect(offerIds(matching.body)).toEqual([OFFER.BILLING_API]);
+    expect(unpublished.status).toBe(200);
+    expect(unpublished.body).toEqual([]);
+  });
+
   it("rejette une période inconnue", async () => {
     const response = await listOffersAs("ADMIN", ADMINISTRATOR.ANNE_LECLERCQ).query({
       period: "P3",

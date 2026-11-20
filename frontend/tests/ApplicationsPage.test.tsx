@@ -119,6 +119,23 @@ describe("ApplicationsPage", () => {
     );
   });
 
+  it("conserve la candidature et affiche une erreur lorsque le retrait est refusé", async () => {
+    stubFetch({
+      "/api/applications/1": () => new Response(null, { status: 409 }),
+      "/api/applications": () => Response.json(applications),
+    });
+
+    render(<ApplicationsPage token="jeton" onUnauthorized={vi.fn()} />);
+
+    await screen.findByText("Développeuse React");
+    fireEvent.click(screen.getByRole("button", { name: "Retirer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmer le retrait" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("statut 409");
+    expect(screen.getAllByText("Retirée")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Confirmer le retrait" })).toBeInTheDocument();
+  });
+
   it("signale une session expirée", async () => {
     stubFetch({ "/api/applications": () => new Response(null, { status: 401 }) });
     const onUnauthorized = vi.fn();
