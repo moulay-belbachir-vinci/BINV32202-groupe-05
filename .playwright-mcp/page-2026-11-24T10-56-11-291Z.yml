@@ -1,0 +1,75 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]: Gesta
+    - navigation "Navigation principale" [ref=e121]:
+      - link "Accueil" [ref=e122] [cursor=pointer]:
+        - /url: /
+      - link "Offres" [active] [ref=e123] [cursor=pointer]:
+        - /url: /offres
+      - link "Mes candidatures" [ref=e124] [cursor=pointer]:
+        - /url: /candidatures
+      - link "Entreprises" [ref=e125] [cursor=pointer]:
+        - /url: /entreprises
+    - generic [ref=e126]:
+      - generic [ref=e127]:
+        - strong [ref=e128]: Lucas Dupont
+        - generic [ref=e129]: Étudiant
+      - button "Changer d'utilisateur" [ref=e130] [cursor=pointer]
+  - note [ref=e5]: Mode démo — connexion sans mot de passe, réservée au développement local.
+  - main [ref=e6]:
+    - generic [ref=e135]:
+      - heading "Offres de stage" [level=1] [ref=e136]
+      - paragraph [ref=e137]: Les offres publiées.
+      - generic [ref=e138]:
+        - generic [ref=e139]: Mot-clé du titre
+        - searchbox "Mot-clé du titre" [ref=e140]
+      - generic [ref=e141]:
+        - generic [ref=e142]: Période
+        - combobox "Période" [ref=e143]:
+          - option "Toutes les périodes" [selected]
+          - option "P1"
+          - option "P2"
+          - option "Autre"
+      - paragraph [ref=e144]: 4 offres
+      - table [ref=e146]:
+        - rowgroup [ref=e147]:
+          - row [ref=e148]:
+            - columnheader "Titre" [ref=e149]
+            - columnheader "Entreprise" [ref=e150]
+            - columnheader "Année" [ref=e151]
+            - columnheader "Période" [ref=e152]
+            - columnheader "Statut" [ref=e153]
+            - columnheader "Action" [ref=e154]
+        - rowgroup [ref=e155]:
+          - row [ref=e156]:
+            - cell "Assistant conversationnel interne" [ref=e157]
+            - cell "Nexalis" [ref=e158]
+            - cell "2026-2027" [ref=e159]
+            - cell "P2" [ref=e160]
+            - cell "Publiée" [ref=e161]
+            - cell [ref=e163]:
+              - button "Candidater" [ref=e165] [cursor=pointer]
+          - row [ref=e166]:
+            - cell "Tableau de bord de qualité des données" [ref=e167]
+            - cell "Lumen Data" [ref=e168]
+            - cell "2026-2027" [ref=e169]
+            - cell "P2" [ref=e170]
+            - cell "Publiée" [ref=e171]
+            - cell [ref=e173]:
+              - button "Candidater" [ref=e175] [cursor=pointer]
+          - row [ref=e176]:
+            - cell "Application React de gestion de flotte" [ref=e177]
+            - cell "Lumen Digital" [ref=e178]
+            - cell "2026-2027" [ref=e179]
+            - cell "P2" [ref=e180]
+            - cell "Publiée" [ref=e181]
+            - cell [ref=e183]:
+              - button "Candidater" [ref=e185] [cursor=pointer]
+          - row [ref=e186]:
+            - cell "API REST de facturation" [ref=e187]
+            - cell "Orbis" [ref=e188]
+            - cell "2026-2027" [ref=e189]
+            - cell "P2" [ref=e190]
+            - cell "Publiée" [ref=e191]
+            - cell [ref=e193]:
+              - button "Candidater" [ref=e195] [cursor=pointer]
