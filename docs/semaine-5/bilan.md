@@ -33,10 +33,38 @@ Assertions principales :
 
 La base de démonstration peut être restaurée avec `npm run db:reset` avant le démarrage de l’application pour retrouver les données de référence. Les tests n’écrivent pas dans les données et ne dépendent pas de leur ordre d’exécution.
 
-Résultats des deux exécutions successives :
+Résultats des deux exécutions successives après restauration :
 
-- `npx playwright test e2e/recherche-offres/recherche-offres.spec.ts --project=chromium` : **2 tests réussis** dans Chromium.
-- `npx playwright test e2e/recherche-offres/recherche-offres.spec.ts` : **6 tests réussis** dans Chromium, Firefox et WebKit.
-- `npm run check` : **réussi**, code de sortie 0.
+- `npx playwright test e2e/recherche-offres/recherche-offres.spec.ts --project=chromium` (exécution 1) : **2 tests réussis**.
+- La même commande (exécution 2) : **2 tests réussis**.
+- `npm run check` : **réussi**, code de sortie 0; backend **156 tests** et frontend **59 tests** réussis, puis les builds terminés correctement.
 
-Aucun code applicatif n’a été modifié.
+## Vérification du défaut temporaire
+
+Pour vérifier que les tests détectent réellement un défaut, j’ai temporairement remplacé
+l’argument `search` par une chaîne vide dans l’appel à `getOffers` de
+[`frontend/src/hooks/useOffers.ts`](../../frontend/src/hooks/useOffers.ts). Ce défaut
+désactivait le filtrage par mot-clé sans changer la configuration ni la connexion.
+
+- Avec le défaut : **2 échecs** dans Chromium. EF30-E2E-01 n’a pas trouvé le compteur
+  `1 offre`, et EF30-E2E-02 n’a pas trouvé le message d’absence de résultat.
+- Après restauration exacte de `search` : **2 réussites**; les deux exécutions
+  successives ci-dessus sont vertes.
+
+Le défaut n’est pas présent dans le diff final. Les conversations Copilot exportées sont
+jointes dans [`conversation-1.md`](conversation-1.md) et [`conversation-2.md`](conversation-2.md).
+
+## Comparaison
+
+1. **Playwright MCP dans la conversation avec l’agent** permet une exploration interactive
+   de l’application locale : l’agent navigue, clique, saisit des valeurs et observe l’état
+   rendu. Par exemple, `browser_fill_form` a saisi `API` dans « Mot-clé du titre » et a
+   renvoyé l’état mis à jour; `browser_snapshot` a renvoyé le compteur et la ligne Orbis.
+2. **Playwright Test** conserve des scripts versionnés et rejouables, avec des assertions
+   explicites, indépendamment d’une conversation ou de la présence de l’agent. Un compte
+   rendu MCP décrit une observation ponctuelle mais ne constitue pas une régression
+   exécutable.
+3. Je préfère **MCP** pour explorer rapidement un parcours, diagnostiquer un état ou
+   vérifier visuellement une hypothèse. Je préfère **Playwright Test** pour une exigence
+   stable, répétée en CI et vérifiable après chaque modification. Les deux approches sont
+   donc complémentaires.
